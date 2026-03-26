@@ -71,7 +71,11 @@ async def execute_agent_message(
     session_id: str | None = None,
     output_format: dict | None = None,
     final_answer_text_policy: str | None = None,
+    user_id: str | None = None,
 ) -> ExecutionResult:
+    start_time = datetime.now()
+    tracer = get_tracer()
+
     options = build_agent_options(
         config=config,
         cwd=cwd,
@@ -98,6 +102,15 @@ async def execute_agent_message(
         prompt_input = prompt
     else:
         prompt_input = _build_user_message_stream(prompt, session_id)
+
+    # Prepare metadata for tracing
+    metadata = {
+        "cwd": str(cwd),
+        "model": config.sdk.model,
+        "max_turns": config.sdk.max_turns,
+        "output_format_enabled": output_format is not None,
+        "final_answer_policy": policy,
+    }
 
     try:
         async for message in query(prompt=prompt_input, options=options):
