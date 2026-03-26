@@ -107,6 +107,7 @@ class AppConfig(BaseModel):
     agent: AgentSettings = Field(default_factory=AgentSettings)
     storage: StorageSettings = Field(default_factory=StorageSettings)
     api: ApiSettings = Field(default_factory=ApiSettings)
+    langfuse: LangfuseSettings = Field(default_factory=LangfuseSettings)
 
 
 @lru_cache(maxsize=1)
