@@ -74,6 +74,22 @@ class StorageSettings(BaseModel):
     cleanup_on_shutdown: bool = False
 
 
+class LangfuseSettings(BaseModel):
+    enabled: bool = False
+    public_key: str | None = None
+    secret_key: str | None = None
+    host: str = "https://cloud.langfuse.com"
+    # 从环境变量读取配置
+    def get_public_key(self) -> str | None:
+        return os.environ.get("LANGFUSE_PUBLIC_KEY") or self.public_key
+
+    def get_secret_key(self) -> str | None:
+        return os.environ.get("LANGFUSE_SECRET_KEY") or self.secret_key
+
+    def get_host(self) -> str:
+        return os.environ.get("LANGFUSE_HOST") or self.host
+
+
 class ApiSettings(BaseModel):
     return_steps: bool = True
     max_step_preview_chars: int = 800
