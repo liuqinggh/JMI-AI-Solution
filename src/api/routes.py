@@ -188,6 +188,7 @@ async def create_agent_message(
     session_id: str | None = Form(None),
     structured_output_profile: str | None = Form(None),
     final_answer_text_policy: str | None = Form(None),
+    user_id: str | None = Form(None),
     files: list[UploadFile] = File(default=[]),
 ):
     sop = (structured_output_profile or "").strip() or None
@@ -206,9 +207,52 @@ async def create_agent_message(
         config_default=config.api.final_answer_text_policy,
     )
     output_fmt = get_output_format(sop)  # 动态获取 Schema
-    try:
-        if session_id:
-            working_dir = file_store.ensure_session_dir(session_id)
+
+    # Start LangFuse trace
+    trace_metadata = {
+        "prompt_length": len(prompt),
+        "has_files": len(files) > 0,
+        "file_count": len(files),
+        "structured_output_profile": sop,
+        "final_answer_policy": text_policy,
+    }
+
+    with tracer.trace_agent_execution(
+        session_id=session_id,
+        user_id=user_id,
+        metadata=trace_metadata,
+    ) as trace_id:
+        try:
+            if session_id:
+                working_dir = file_store.ensure_session_dir(session_id)
+                saved_files = await file_store.save_uploads(files, working_dir)
+                prepared_prompt = file_store.build_prompt(
+                    prompt=prompt,
+                    saved_files=saved_files,
+                    template=config.api.file_prompt_template,
+                    target_dir=working_dir,
+                )
+                result = await execute_agent_message(
+                    config=config,
+                    prompt=prepared_prompt,
+                    cwd=working_dir,
+                    session_id=session_id,
+                    output_format=output_fmt,  # 传递给 SDK
+                    final_answer_text_policy=text_policy,
+                    user_id=user_id,
+                )
+                response = _build_response(result, sop)
+
+                # Update trace with final result
+                if trace_id:
+                    tracer.update_trace(
+                        output={"final_answer": result.final_answer, "success": result.success},
+                        metadata={"response_type": type(response).__name__},
+                        tags=["session_continuation", sop] if sop else ["session_continuation"],
+                    )
+                return response
+
+            working_dir = file_store.create_pending_dir()
             saved_files = await file_store.save_uploads(files, working_dir)
             prepared_prompt = file_store.build_prompt(
                 prompt=prompt,
@@ -220,30 +264,29 @@ async def create_agent_message(
                 config=config,
                 prompt=prepared_prompt,
                 cwd=working_dir,
-                session_id=session_id,
                 output_format=output_fmt,  # 传递给 SDK
                 final_answer_text_policy=text_policy,
+                user_id=user_id,
             )
-            return _build_response(result, sop)
+            file_store.finalize_pending_dir(working_dir, result.session_id)
+            response = _build_response(result, sop)
 
-        working_dir = file_store.create_pending_dir()
-        saved_files = await file_store.save_uploads(files, working_dir)
-        prepared_prompt = file_store.build_prompt(
-            prompt=prompt,
-            saved_files=saved_files,
-            template=config.api.file_prompt_template,
-            target_dir=working_dir,
-        )
-        result = await execute_agent_message(
-            config=config,
-            prompt=prepared_prompt,
-            cwd=working_dir,
-            output_format=output_fmt,  # 传递给 SDK
-            final_answer_text_policy=text_policy,
-        )
-        file_store.finalize_pending_dir(working_dir, result.session_id)
-        return _build_response(result, sop)
-    except HTTPException:
-        raise
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Agent 执行失败: {exc}") from exc
+            # Update trace with final result
+            if trace_id:
+                tracer.update_trace(
+                    output={"final_answer": result.final_answer, "success": result.success},
+                    metadata={"response_type": type(response).__name__},
+                    tags=["new_session", sop] if sop else ["new_session"],
+                )
+            return response
+        except HTTPException:
+            raise
+        except Exception as exc:
+            # Log error to trace
+            if trace_id:
+                tracer.log_event(
+                    name="api_error",
+                    metadata={"error_type": type(exc).__name__, "error": str(exc)},
+                    level="ERROR",
+                )
+            raise HTTPException(status_code=500, detail=f"Agent 执行失败: {exc}") from exc
