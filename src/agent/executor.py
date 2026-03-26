@@ -113,7 +113,17 @@ async def execute_agent_message(
     }
 
     try:
+        # Log start of agent execution
+        if tracer:
+            tracer.log_event(
+                name="agent_execution_start",
+                metadata=metadata,
+                input_data={"prompt": prompt_input if isinstance(prompt_input, str) else "multipart"},
+            )
+
+        message_count = 0
         async for message in query(prompt=prompt_input, options=options):
+            message_count += 1
             maybe_session_id = getattr(message, "session_id", None)
             if maybe_session_id and not resolved_session_id:
                 resolved_session_id = maybe_session_id
@@ -124,6 +134,18 @@ async def execute_agent_message(
                         "type": type(message).__name__,
                         "content": str(message)[: config.api.max_step_preview_chars],
                     }
+                )
+
+            # Log message events to LangFuse
+            if tracer:
+                tracer.log_event(
+                    name=f"sdk_message_{type(message).__name__}",
+                    metadata={
+                        "message_type": type(message).__name__,
+                        "message_index": message_count,
+                        "session_id": maybe_session_id,
+                    },
+                    input_data={"message_preview": str(message)[:500]},
                 )
 
             if isinstance(message, AssistantMessage):
@@ -146,6 +168,13 @@ async def execute_agent_message(
                 if hasattr(message, "structured_output"):
                     structured_output = message.structured_output
     except Exception as exc:
+        if tracer:
+            tracer.log_event(
+                name="agent_execution_error",
+                metadata={"error_type": type(exc).__name__, "error": str(exc)},
+                level="ERROR",
+            )
+
         if got_result and _looks_like_cli_exit_error(exc):
             logger.warning("CLI 非零退出码，但已收到 ResultMessage，忽略: %s", exc)
         else:
@@ -159,6 +188,26 @@ async def execute_agent_message(
         result_fallback=result_fallback,
         policy=policy,
     )
+
+    end_time = datetime.now()
+
+    # Log completion to LangFuse
+    if tracer:
+        tracer.log_agent_generation(
+            name="agent_query_completion",
+            prompt=prompt_input if isinstance(prompt_input, str) else "multipart",
+            model=config.sdk.model,
+            start_time=start_time,
+            end_time=end_time,
+            completion=final_answer,
+            metadata={
+                **metadata,
+                "success": success,
+                "message_count": message_count,
+                "assistant_turns": len(assistant_turn_texts),
+                "structured_output_present": structured_output is not None,
+            },
+        )
 
     return ExecutionResult(
         session_id=resolved_session_id,
