@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent API Test Page</title>
+  <style>
+    :root {
+      --bg: #f4efe7;
+      --panel: rgba(255, 252, 246, 0.84);
+      --panel-strong: #fffaf1;
+      --line: rgba(68, 48, 35, 0.16);
+      --text: #2b211b;
+      --muted: #746457;
+      --accent: #c75c36;
+      --accent-dark: #9f3f1f;
+      --success: #1f7a55;
+      --error: #a62929;
+      --shadow: 0 22px 60px rgba(73, 43, 20, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(199, 92, 54, 0.2), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(31, 122, 85, 0.14), transparent 28%),
+        linear-gradient(135deg, #f7f1e8 0%, #efe7dc 48%, #f9f5ef 100%);
+      padding: 24px;
+    }
+
+    .shell {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: grid;
+      gap: 20px;
+    }
+
+    .hero,
+    .panel {
+      backdrop-filter: blur(16px);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 28px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -60px;
+      top: -80px;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: rgba(199, 92, 54, 0.12);
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent-dark);
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: clamp(32px, 6vw, 54px);
+      line-height: 0.96;
+      max-width: 720px;
+    }
+
+    .hero p {
+      margin: 16px 0 0;
+      max-width: 680px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+      gap: 20px;
+    }
+
+    .panel {
+      padding: 22px;
+    }
+
+    form {
+      display: grid;
+      gap: 16px;
+    }
+
+    label {
+      display: grid;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    input,
+    textarea,
+    button {
+      font: inherit;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid rgba(68, 48, 35, 0.14);
+      border-radius: 16px;
+      padding: 14px 16px;
+      background: var(--panel-strong);
+      color: var(--text);
+      transition: border-color 140ms ease, transform 140ms ease;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: rgba(199, 92, 54, 0.55);
+      transform: translateY(-1px);
+    }
+
+    textarea {
+      min-height: 180px;
+      resize: vertical;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 12px 18px;
+      cursor: pointer;
+      transition: transform 140ms ease, opacity 140ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: wait;
+      transform: none;
+    }
+
+    .primary {
+      background: linear-gradient(135deg, var(--accent), #df7a46);
+      color: #fffaf2;
+    }
+
+    .secondary {
+      background: rgba(43, 33, 27, 0.08);
+      color: var(--text);
+    }
+
+    .meta {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(43, 33, 27, 0.06);
+      color: var(--muted);
+    }
+
+    .status.success {
+      background: rgba(31, 122, 85, 0.12);
+      color: var(--success);
+    }
+
+    .status.error {
+      background: rgba(166, 41, 41, 0.12);
+      color: var(--error);
+    }
+
+    pre {
+      margin: 0;
+      min-height: 420px;
+      padding: 18px;
+      border-radius: 18px;
+      overflow: auto;
+      background: #231913;
+      color: #f7f1e8;
+      font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .small {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .config-banner {
+      padding: 14px 18px;
+      border-radius: 14px;
+      background: rgba(31, 122, 85, 0.08);
+      border: 1px solid rgba(31, 122, 85, 0.2);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .config-banner.vertex {
+      background: rgba(66, 133, 244, 0.08);
+      border-color: rgba(66, 133, 244, 0.24);
+    }
+
+    .config-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .config-item {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .config-label {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .config-value {
+      color: var(--muted);
+    }
+
+    .config-loading {
+      color: var(--muted);
+    }
+
+    @media (max-width: 900px) {
+      body {
+        padding: 16px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      pre {
+        min-height: 280px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <p class="eyebrow">Browser Harness</p>
+      <h1>Agent API 测试页</h1>
+      <p>
+        这个页面直接调用 <code>/v1/agent/messages</code>。可以输入 prompt、复用 session_id，
+        也可以顺手带上文件做联调，返回结果会原样展示在右侧。
+      </p>
+      <div id="config-info" class="config-banner" style="margin-top: 16px;">
+        <div class="config-loading">正在加载配置信息...</div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <section class="panel">
+        <form id="agent-form">
+          <label>
+            Prompt
+            <textarea id="prompt" name="prompt" placeholder="例如：请总结我上传的文件，并给出三个测试点" required></textarea>
+          </label>
+
+          <label>
+            Session ID（可选）
+            <input id="session_id" name="session_id" type="text" placeholder="留空则创建新会话" />
+          </label>
+
+          <label>
+            Files（可选）
+            <input id="files" name="files" type="file" multiple />
+          </label>
+
+          <div class="actions">
+            <button class="primary" id="submit-button" type="submit">发送请求</button>
+            <button class="secondary" id="fill-button" type="button">填入示例</button>
+            <button class="secondary" id="clear-button" type="button">清空结果</button>
+          </div>
+        </form>
+
+        <div class="meta">
+          <div id="status" class="status">等待请求</div>
+          <div class="small">
+            成功后如果接口返回了 <code>session_id</code>，页面会自动回填，方便继续多轮测试。
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div class="small">响应结果</div>
+          <button class="secondary" id="toggle-steps" type="button" style="padding: 6px 12px; font-size: 12px; display: none;">
+            显示步骤
+          </button>
+        </div>
+        <pre id="result">{
+  "hint": "点击左侧发送请求开始测试"
+}</pre>
+        <div id="steps-container" style="display: none; margin-top: 16px;">
+          <div class="small" style="margin-bottom: 8px;">执行步骤</div>
+          <pre id="steps"></pre>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById("agent-form");
+    const promptInput = document.getElementById("prompt");
+    const sessionInput = document.getElementById("session_id");
+    const filesInput = document.getElementById("files");
+    const result = document.getElementById("result");
+    const status = document.getElementById("status");
+    const submitButton = document.getElementById("submit-button");
+    const fillButton = document.getElementById("fill-button");
+    const clearButton = document.getElementById("clear-button");
+    const configInfo = document.getElementById("config-info");
+    const toggleStepsButton = document.getElementById("toggle-steps");
+    const stepsContainer = document.getElementById("steps-container");
+    const stepsElement = document.getElementById("steps");
+
+    let currentSteps = null;
+
+    function setStatus(message, tone = "idle") {
+      status.textContent = message;
+      status.className = "status" + (tone === "idle" ? "" : " " + tone);
+    }
+
+    function renderJson(data) {
+      result.textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function loadConfig() {
+      try {
+        const response = await fetch("/config");
+        const config = await response.json();
+
+        const isVertex = config.provider === "Vertex AI";
+        const bannerClass = isVertex ? "config-banner vertex" : "config-banner";
+
+        let configHtml = `<div class="config-label">当前配置</div>`;
+        configHtml += `<div class="config-row">`;
+        configHtml += `<div class="config-item"><span class="config-label">Provider:</span><span class="config-value">${config.provider}</span></div>`;
+        configHtml += `<div class="config-item"><span class="config-label">Model:</span><span class="config-value">${config.model}</span></div>`;
+        configHtml += `<div class="config-item"><span class="config-label">Max Turns:</span><span class="config-value">${config.max_turns}</span></div>`;
+
+        if (config.vertex_project_id) {
+          configHtml += `<div class="config-item"><span class="config-label">Project:</span><span class="config-value">${config.vertex_project_id}</span></div>`;
+        }
+        if (config.region) {
+          configHtml += `<div class="config-item"><span class="config-label">Region:</span><span class="config-value">${config.region}</span></div>`;
+        }
+
+        configHtml += `</div>`;
+
+        configInfo.className = bannerClass;
+        configInfo.innerHTML = configHtml;
+      } catch (error) {
+        configInfo.innerHTML = `<div class="config-loading">配置信息加载失败</div>`;
+      }
+    }
+
+    // 页面加载时获取配置
+    loadConfig();
+
+    fillButton.addEventListener("click", () => {
+      promptInput.value = "请总结这次测试请求，并告诉我下一步建议怎么继续验证接口。";
+      setStatus("已填入示例内容");
+    });
+
+    clearButton.addEventListener("click", () => {
+      form.reset();
+      renderJson({ hint: "点击左侧发送请求开始测试" });
+      setStatus("结果已清空");
+      currentSteps = null;
+      toggleStepsButton.style.display = "none";
+      stepsContainer.style.display = "none";
+    });
+
+    toggleStepsButton.addEventListener("click", () => {
+      if (stepsContainer.style.display === "none") {
+        stepsContainer.style.display = "block";
+        toggleStepsButton.textContent = "隐藏步骤";
+        if (currentSteps) {
+          stepsElement.textContent = JSON.stringify(currentSteps, null, 2);
+        }
+      } else {
+        stepsContainer.style.display = "none";
+        toggleStepsButton.textContent = "显示步骤";
+      }
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      submitButton.disabled = true;
+      setStatus("请求发送中...", "idle");
+
+      const formData = new FormData();
+      formData.append("prompt", promptInput.value.trim());
+
+      if (sessionInput.value.trim()) {
+        formData.append("session_id", sessionInput.value.trim());
+      }
+
+      for (const file of filesInput.files) {
+        formData.append("files", file);
+      }
+
+      try {
+        const response = await fetch("/v1/agent/messages", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          const detail = typeof data.detail === "string" ? data.detail : "请求失败";
+          throw new Error(detail);
+        }
+
+        // 保存步骤信息
+        if (data.steps && data.steps.length > 0) {
+          currentSteps = data.steps;
+          toggleStepsButton.style.display = "inline-block";
+        } else {
+          currentSteps = null;
+          toggleStepsButton.style.display = "none";
+        }
+
+        // 显示简化的结果（不包含 steps）
+        const displayData = { ...data };
+        if (displayData.steps) {
+          displayData.steps = `... ${displayData.steps.length} steps (点击"显示步骤"查看)`;
+        }
+        renderJson(displayData);
+
+        if (data.session_id) {
+          sessionInput.value = data.session_id;
+        }
+
+        const statusMsg = data.success ? "请求成功" : "请求完成（有错误）";
+        const statusTone = data.success ? "success" : "error";
+        setStatus(statusMsg, statusTone);
+      } catch (error) {
+        renderJson({ error: error.message || "未知错误" });
+        setStatus("请求失败", "error");
+        currentSteps = null;
+        toggleStepsButton.style.display = "none";
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

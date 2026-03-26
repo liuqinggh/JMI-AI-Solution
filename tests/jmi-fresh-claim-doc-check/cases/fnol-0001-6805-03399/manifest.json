@@ -1,0 +1,15 @@
+{
+  "case_id": "FNOL_0001_6805_03399",
+  "skill": "jmi-fresh-claim-doc-check",
+  "description_zh": "Fresh claim 影像材料目录 + 保单；期望 JSON 为基于本夹具的审核金样（可与 vision 流水线输出做快照对比，模型升级后允许更新 golden）。",
+  "input": {
+    "policy": "input/policy.md",
+    "materials_dir": "input/materials",
+    "materials_glob": "*.pdf"
+  },
+  "expected_output": "output/fresh-claim-doc-check-result.json",
+  "source_of_truth_docs": [
+    "docs/case-fnol-0001-6805-03399/policy.md",
+    ".image/case-FNOL_0001_6805_03399/"
+  ]
+}

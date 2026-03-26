@@ -1,0 +1,108 @@
+{
+  "case_reference": "fnol-0001-6805-03399",
+  "checklist": "intake_call_checkout",
+  "source_documents": [
+    "tests/jmi-intake-call-checkout/cases/fnol-0001-6805-03399/input/Claim-Inteview-Simulation.md",
+    "tests/jmi-intake-call-checkout/cases/fnol-0001-6805-03399/input/policy.md"
+  ],
+  "overall_result": "pass",
+  "summary": "四项 intake 与保单一致；单方轻微物损、无伤亡、车辆已离开现场，非紧急，建议不派 surveyor，倾向远程定损。承保有效性以核心系统为准。",
+  "items": [
+    {
+      "sequence": 1,
+      "name_zh": "保单号和有效性",
+      "name_en": "policy_number_and_validity",
+      "result": "pass",
+      "call_evidence": { "policy_number_stated": "JMI-D-PV1-6706-000041" },
+      "policy_evidence": {
+        "policy_number": "JMI-D-PV1-6706-000041",
+        "policy_period": "2025-01-01 至 2025-12-31"
+      },
+      "notes": "号码与保单一致；是否有效承保须核心系统查询（system_verification_required）。"
+    },
+    {
+      "sequence": 2,
+      "name_zh": "姓名和联系电话一致性",
+      "name_en": "name_and_phone_consistency",
+      "result": "pass",
+      "call_evidence": {
+        "name": "Anusit Naithong (อนุสิทธิ์ ในทอง)",
+        "phone": "099-608-6907"
+      },
+      "policy_evidence": {
+        "insured_name_th": "นาย อนุสิทธิ์ ในทอง",
+        "insured_name_en": "MR. ANUSIT NAITONG",
+        "phone": "099-608-6907"
+      },
+      "notes": "姓名与电话与保单一致。"
+    },
+    {
+      "sequence": 3,
+      "name_zh": "车牌号和车型一致性",
+      "name_en": "plate_and_vehicle_model_consistency",
+      "result": "pass",
+      "call_evidence": {
+        "registration": "3กธ 9806 曼谷",
+        "vehicle_description": "丰田 Hilux Revo（客服确认）"
+      },
+      "policy_evidence": {
+        "registration_number": "3กธ 9806",
+        "registration_province": "Bangkok (曼谷)",
+        "make": "TOYOTA",
+        "model": "HILUX REVO"
+      },
+      "notes": "车牌与车型与保单一致。"
+    },
+    {
+      "sequence": 4,
+      "name_zh": "事故日期是否在保单有效期内",
+      "name_en": "loss_date_within_policy_period",
+      "result": "pass",
+      "call_evidence": {
+        "loss_date_stated": "2025-05-26",
+        "loss_time_stated": "约 20:30"
+      },
+      "policy_evidence": {
+        "policy_period_start": "2025-01-01",
+        "policy_period_end": "2025-12-31"
+      },
+      "notes": "事故日在保险期间内。"
+    }
+  ],
+  "emergency_and_surveyor": {
+    "is_emergency": false,
+    "emergency_reasons_zh": [
+      "无人员伤亡或未提及受伤",
+      "单方碰撞固定物（路边台阶），无特殊事故类型（起火/落水等）",
+      "客户自述为视线不好导致，未呈现明显欺诈或需即时现场封控的信号"
+    ],
+    "dispatch_surveyor": "not_required",
+    "weighted_total_score": 0,
+    "score_breakdown": {
+      "accident_nature": 0,
+      "loss_amount": 0,
+      "liability_complexity": 0,
+      "casualties": 0,
+      "scene_status": 0,
+      "fraud_risk": 0,
+      "policy_special": 0
+    },
+    "rationale_zh": "快速规则：单方轻微物损（撞台阶）、责任明确、无伤亡 → 不派员、非紧急。加权：事故性质为单方轻微；责任为单方全责；无伤亡；客户已在住处、车辆已离开事发相关位置，现场状态不利于现场取证；损失金额因子按轻微描述给低分；保单为个人用途车辆，无额外条款触发。七因子 raw 求和 0＜5，对应不需要现场勘察。",
+    "remote_survey_options_zh": [
+      "照片定损：车牌、受损部位、车架号多角度照片",
+      "修理厂定损：送修后由修理厂检查报价、保司审核",
+      "视频定损：远程指导拍摄",
+      "结合事故陈述与后续上传材料定损"
+    ],
+    "exceptions_considered_zh": "通话中客户未坚持现场勘察；无条款特别要求派员；无上级/复核类信息。若后续客户坚持或审核发现异常，可改派。",
+    "data_gaps": [
+      "未口述具体损失金额（泰铢），无法在「损失金额」因子使用精确档位，本案按「前保险杠与右前翼子板凹陷」归入轻微倾向低分"
+    ]
+  },
+  "observations_outside_checklist": [
+    {
+      "topic": "现住址与保单登记地址",
+      "detail": "通话称人在巴吞他尼 Pathum Thani Sakae Phrong；保单地址为武里南府 Buri Ram Sakae Phrong。非 intake 四项必核，可后续核实。"
+    }
+  ]
+}

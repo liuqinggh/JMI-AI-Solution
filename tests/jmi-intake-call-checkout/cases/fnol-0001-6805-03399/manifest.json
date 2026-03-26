@@ -1,0 +1,14 @@
+{
+  "case_id": "fnol-0001-6805-03399",
+  "skill": "jmi-intake-call-checkout",
+  "description_zh": "Intake 电话报案 + 保单 的固定夹具与期望 JSON，供回归/快照测试。",
+  "input": {
+    "call_transcript": "input/Claim-Inteview-Simulation.md",
+    "policy": "input/policy.md"
+  },
+  "expected_output": "output/intake-checkout-result.json",
+  "source_of_truth_docs": [
+    "docs/case-fnol-0001-6805-03399/Claim-Inteview-Simulation.md",
+    "docs/case-fnol-0001-6805-03399/policy.md"
+  ]
+}

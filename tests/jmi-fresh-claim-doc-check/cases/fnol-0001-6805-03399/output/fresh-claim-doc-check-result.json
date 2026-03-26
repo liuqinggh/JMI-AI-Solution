@@ -1,0 +1,383 @@
+{
+  "case_id": "FNOL_0001_6805_03399",
+  "checklist": "fresh_claim_documents",
+  "reference_policy": "tests/jmi-fresh-claim-doc-check/cases/fnol-0001-6805-03399/input/policy.md",
+  "vision_pipeline": {
+    "tool": "image-by-intent",
+    "script": "~/.cursor/skills/image-by-intent/scripts/vision-curl.sh",
+    "litellm_base_url": "http://localhost:4000/v1",
+    "model": "gemini-2.5-flash",
+    "note": "Golden 样例基于一次 vision 审核结论固化；重跑 vision 时允许与 golden 存在差异，需人工确认是否更新本文件。"
+  },
+  "policy_snapshot": {
+    "policy_number": "JMI-D-PV1-6706-000041",
+    "insured_name_en": "MR. ANUSIT NAITONG",
+    "insured_id": "1319900408441",
+    "phone": "099-608-6907",
+    "registration": "3กธ 9806",
+    "registration_province": "Bangkok",
+    "make": "TOYOTA",
+    "model": "HILUX REVO",
+    "year": "2020",
+    "chassis": "MROCB8CB804260241",
+    "engine": "2GD0939665",
+    "owner": "Toyota Leasing (Thailand) Co., Ltd.",
+    "possessor": "MR. ANUSIT NAITONG",
+    "own_damage_deductible_first_loss_thb": 1000
+  },
+  "material_presence": {
+    "事故陈述记录_出险笔录": {
+      "present": true,
+      "source_files_hint": [
+        "FNOL_0001_6805_03399_page_01_FNOL_Document_by_Repair_Garage.pdf",
+        "FNOL_0001_6805_03399_page_02_FNOL_Document_by_Repair_Garage.pdf",
+        "FNOL_0001_6805_03399_page_23_FNOL_Document_by_Repair_Garage.pdf"
+      ]
+    },
+    "事故现场勘察报告_FCCS": {
+      "present": true,
+      "source_files_hint": [
+        "FNOL_0001_6805_03399_page_04_FNOL_Document_by_Repair_Garage.pdf",
+        "FNOL_0001_6805_03399_page_19_FNOL_Document_by_Repair_Garage.pdf"
+      ]
+    },
+    "损伤列表报告_定损单": {
+      "present": true,
+      "source_files_hint": [
+        "FNOL_0001_6805_03399_page_01_FNOL_Document_by_Repair_Garage.pdf"
+      ]
+    },
+    "受保车辆驾驶员陈述书": {
+      "present": true,
+      "source_files_hint": [
+        "FNOL_0001_6805_03399_page_03_Insured_Driver_Statement_Form.pdf"
+      ]
+    },
+    "驾驶执照复印件": {
+      "present": true,
+      "source_files_hint": [
+        "FNOL_0001_6805_03399_page_06_Insureds_Driving_License_Copy.pdf",
+        "FNOL_0001_6805_03399_page_21_Insureds_Driving_License_Copy.pdf"
+      ]
+    },
+    "车辆登记证副本": {
+      "present": true,
+      "source_files_hint": [
+        "FNOL_0001_6805_03399_page_05_Vehicle_Registration_Book_Copy.pdf",
+        "FNOL_0001_6805_03399_page_07_Vehicle_Registration_Book_Copy.pdf",
+        "FNOL_0001_6805_03399_page_22_Vehicle_Registration_Book_Copy.pdf"
+      ]
+    },
+    "事故现场照片证据": {
+      "present": true,
+      "source_files_hint": [
+        "FNOL_0001_6805_03399_page_08_Photo_Video_Evidence.pdf",
+        "FNOL_0001_6805_03399_page_09_Photo_Video_Evidence.pdf",
+        "FNOL_0001_6805_03399_page_10_Photo_Video_Evidence.pdf",
+        "FNOL_0001_6805_03399_page_11_Photo_Video_Evidence.pdf",
+        "FNOL_0001_6805_03399_page_12_Photo_Video_Evidence.pdf",
+        "FNOL_0001_6805_03399_page_13_Photo_Video_Evidence.pdf",
+        "FNOL_0001_6805_03399_page_14_Photo_Video_Evidence.pdf"
+      ]
+    }
+  },
+  "overall_result": "fail",
+  "overall_summary_zh": "七类材料均有提交；跨表身份与责任认定不一致，FCCS 信息与保单被保险人存在明显偏差；照片与定损可部分佐证车损与 VIN。适用 OCR 1～2 位容差时，车牌/VIN 与保单仍宜以登记证+保单为准做人工复核。",
+  "documents": [
+    {
+      "id": 1,
+      "name_zh": "事故陈述记录（出险笔录）",
+      "result": "fail",
+      "checks": [
+        {
+          "item": "报案号：是否与保单报案号一致",
+          "result": "pass",
+          "evidence": "可见 0001/6805/03399 与案件一致"
+        },
+        {
+          "item": "保单号：是否正确",
+          "result": "pass",
+          "evidence": "page_01 等与 JMI-D-PV1-6706-000041 一致"
+        },
+        {
+          "item": "驾驶员信息：姓名、电话是否与驾驶证一致",
+          "result": "fail",
+          "evidence": "page_02 陈述人/驾驶员与 page_06 驾驶证被保险人非同一人叙述时需核实原件",
+          "notes": "若 OCR 姓名在容差内可改为 partial 并标注 ocr_tolerance"
+        },
+        {
+          "item": "事故描述：时间、地点、经过是否清晰完整",
+          "result": "partial",
+          "evidence": "存在多条日期/情节线索时需书面统一"
+        },
+        {
+          "item": "签字确认：是否有驾驶员亲笔签字",
+          "result": "pass",
+          "evidence": "page_02 有签署"
+        },
+        {
+          "item": "日期：是否在事故发生后合理时间内",
+          "result": "pass",
+          "evidence": "签署日期与事故日相邻"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name_zh": "事故现场勘察报告 (FCCS)",
+      "result": "fail",
+      "checks": [
+        {
+          "item": "报案号和保单号：是否匹配",
+          "result": "partial",
+          "evidence": "报案号一致；保单号栏位需对照原件排除 OCR/笔误",
+          "notes": "ocr_tolerance 可能适用"
+        },
+        {
+          "item": "事故时间：与陈述记录是否一致",
+          "result": "pass",
+          "evidence": "与 2025-05-26 20:30 主线一致"
+        },
+        {
+          "item": "事故地点：是否详细准确",
+          "result": "pass",
+          "evidence": "暖武里等区域信息"
+        },
+        {
+          "item": "责任判定：是否明确（错误方/正确方）",
+          "result": "fail",
+          "evidence": "待判/未最终认定与定损单方有责表述可能冲突"
+        },
+        {
+          "item": "免赔额：金额是否正确",
+          "result": "pass",
+          "evidence": "1000 THB 与保单首损免赔一致"
+        },
+        {
+          "item": "勘察员签字：是否有勘察员签字确认",
+          "result": "pass",
+          "evidence": "有签字痕迹"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name_zh": "损伤列表报告/定损单",
+      "result": "partial",
+      "checks": [
+        {
+          "item": "报案号：是否匹配",
+          "result": "pass",
+          "evidence": "0001/6805/03399"
+        },
+        {
+          "item": "车牌号和车架号：与保单和车辆登记证是否一致",
+          "result": "partial",
+          "evidence": "定损页车牌 OCR 易混；登记证 VIN/发动机号与保单一致可佐证标的",
+          "notes": "ocr_tolerance"
+        },
+        {
+          "item": "受损部位：是否详细列出",
+          "result": "pass",
+          "evidence": "列有保险杠、灯、翼子板等"
+        },
+        {
+          "item": "责任判定：是否与勘察报告一致",
+          "result": "fail",
+          "evidence": "与 FCCS 待判不一致"
+        },
+        {
+          "item": "定损日期：是否在事故发生后合理时间内",
+          "result": "pass",
+          "evidence": "接近日期内"
+        },
+        {
+          "item": "勘察员签字：是否有签字",
+          "result": "pass",
+          "evidence": "有出具/接收签字"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name_zh": "受保车辆驾驶员陈述书",
+      "result": "fail",
+      "checks": [
+        {
+          "item": "理赔编号：是否匹配",
+          "result": "pass",
+          "evidence": "0001/6805/03399"
+        },
+        {
+          "item": "驾驶员身份：是否为被保险人本人",
+          "result": "fail",
+          "evidence": "姓名/勾选与保单被保险人需一致"
+        },
+        {
+          "item": "身份证号：是否完整",
+          "result": "partial",
+          "evidence": "与保单身份证比对；一位差异可属 ocr_tolerance",
+          "notes": "ocr_tolerance"
+        },
+        {
+          "item": "驾照有效期：事故发生时是否在有效期内",
+          "result": "pass",
+          "evidence": "表内有效期覆盖事故日则成立"
+        },
+        {
+          "item": "签字确认：是否有驾驶员亲笔签字",
+          "result": "pass",
+          "evidence": "有签名"
+        },
+        {
+          "item": "日期：是否填写完整",
+          "result": "pass",
+          "evidence": "有日期"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name_zh": "驾驶执照复印件",
+      "result": "partial",
+      "checks": [
+        {
+          "item": "持证人姓名：与被保险人是否一致",
+          "result": "pass",
+          "evidence": "MR. ANUSIT NAITONG"
+        },
+        {
+          "item": "出生日期：是否清晰",
+          "result": "pass",
+          "evidence": "与保单一致"
+        },
+        {
+          "item": "身份证号：是否完整",
+          "result": "pass",
+          "evidence": "与保单一致"
+        },
+        {
+          "item": "准驾车型：是否涵盖事故车辆类型",
+          "result": "pass",
+          "evidence": "涵盖皮卡类（以法规解释为准）"
+        },
+        {
+          "item": "有效期限：事故发生时是否在有效期内",
+          "result": "pass",
+          "evidence": "覆盖事故日"
+        },
+        {
+          "item": "签发机关：是否清晰可辨",
+          "result": "pass",
+          "evidence": "可辨"
+        },
+        {
+          "item": "复印件签名：是否有「复印件正确」签字确认",
+          "result": "fail",
+          "evidence": "未见规范核签时需补"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name_zh": "车辆登记证副本",
+      "result": "pass",
+      "checks": [
+        {
+          "item": "车牌号：与保单和事故车辆是否一致",
+          "result": "pass",
+          "evidence": "泰文牌面 OCR 多版本；与保单语义一致",
+          "notes": "ocr_tolerance"
+        },
+        {
+          "item": "车架号和发动机号：与保单和定损单是否一致",
+          "result": "pass",
+          "evidence": "MROCB8CB804260241 / 2GD0939665"
+        },
+        {
+          "item": "品牌型号：是否正确",
+          "result": "pass",
+          "evidence": "HILUX REVO / TOYOTA"
+        },
+        {
+          "item": "登记日期：是否清晰",
+          "result": "pass",
+          "evidence": "清晰"
+        },
+        {
+          "item": "所有权人：是否与被保险人或租赁公司一致",
+          "result": "pass",
+          "evidence": "Toyota Leasing"
+        },
+        {
+          "item": "占有人信息：是否为被保险人本人",
+          "result": "pass",
+          "evidence": "占有人为 Anusit"
+        },
+        {
+          "item": "证件号：是否与身份证一致",
+          "result": "pass",
+          "evidence": "与保单一致"
+        },
+        {
+          "item": "地址：是否完整",
+          "result": "pass",
+          "evidence": "有完整地址信息"
+        },
+        {
+          "item": "登记官签字：是否有官方签章",
+          "result": "pass",
+          "evidence": "有签章/签字痕迹"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name_zh": "事故现场照片证据",
+      "result": "partial",
+      "checks": [
+        {
+          "item": "车牌号清晰度：是否能清晰辨认车牌",
+          "result": "partial",
+          "evidence": "部分张有清晰车牌，部分无"
+        },
+        {
+          "item": "受损部位：是否能清楚看到受损位置",
+          "result": "partial",
+          "evidence": "多张可见损伤；个别为车尾无损伤"
+        },
+        {
+          "item": "拍摄角度：是否有多个角度的拍摄",
+          "result": "partial",
+          "evidence": "近景为主，整车四角可补强"
+        },
+        {
+          "item": "车架号：如有特写，是否能清晰辨认",
+          "result": "pass",
+          "evidence": "有 VIN 特写页"
+        },
+        {
+          "item": "照片日期：是否有拍摄时间记录",
+          "result": "pass",
+          "evidence": "多数带时间戳"
+        },
+        {
+          "item": "照片数量：是否足以证明受损情况",
+          "result": "partial",
+          "evidence": "可支撑初步定损；规范验车照可更完整"
+        },
+        {
+          "item": "清晰度：照片质量是否足够清晰",
+          "result": "pass",
+          "evidence": "整体可用"
+        }
+      ]
+    }
+  ],
+  "recommended_actions_zh": [
+    "人工核对各表驾驶员/被保险人姓名与身份证号原件，排除错页、代填。",
+    "统一 FCCS 与定损单责任认定口径或附说明。",
+    "驾驶证复印件按规范补「与原件一致」签注。",
+    "按需补充整车四角及车损与车牌同框照片。"
+  ]
+}

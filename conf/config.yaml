@@ -1,0 +1,52 @@
+app:
+  host: 0.0.0.0
+  port: 8000
+  reload: true
+
+sdk:
+  base_url: http://localhost:4000
+  api_key: sk-1234
+  model: claude-sonnet-4-5
+  max_turns: 25
+  continue_conversation: true
+  permission_mode: acceptEdits
+  setting_sources:
+    - project
+    - user
+  allowed_tools:
+    - Read
+    - Write
+    - Edit
+    - MultiEdit
+    - Bash
+    - Skill
+    - Glob
+    - Grep
+    - WebSearch
+  env:
+    CLAUDE_CODE_USE_VERTEX: "1"
+    GOOGLE_APPLICATION_CREDENTIALS: /Users/cd-la-067/.config/gcloud/application_default_credentials.json
+    ANTHROPIC_VERTEX_PROJECT_ID: ai-model-487001
+    CLOUD_ML_REGION: global
+
+agent:
+  system_prompt: >
+    你是一个专业、严谨的工程师 Agent。
+    优先使用 Skill 指导流程，结合用户 prompt 给出有用建议。
+
+storage:
+  upload_root: uploads
+  pending_dir_name: .pending
+  cleanup_on_shutdown: false
+
+api:
+  return_steps: true
+  max_step_preview_chars: 800
+  # full: 多轮助手文本全部拼进 final_answer；last_assistant_turn: 仅最后一轮
+  final_answer_text_policy: full
+  file_prompt_template: |
+    用户上传了以下文件：{files}
+
+    {prompt}
+
+    请先使用 Read 工具读取这些文件，然后按要求回复。
