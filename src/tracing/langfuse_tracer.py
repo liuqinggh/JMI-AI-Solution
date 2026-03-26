@@ -8,7 +8,6 @@ from datetime import datetime
 from typing import Any, Generator
 
 from langfuse import Langfuse
-from langfuse.decorators import langfuse_context
 
 from src.config import LangfuseSettings
 
