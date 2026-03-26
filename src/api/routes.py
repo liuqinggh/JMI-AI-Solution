@@ -28,12 +28,25 @@ ALLOWED_STRUCTURED_OUTPUT_PROFILES: frozenset[str | None] = frozenset(
 from src.api.models import AgentResponse, ConfigInfo, HealthResponse, StructuredAgentResponse
 from src.config import configure_sdk_environment, get_config
 from src.storage.content_store import ContentAddressedStore
+from src.tracing.langfuse_tracer import LangfuseTracer
+from src.agent.executor import set_tracer
 
 
 config = configure_sdk_environment(get_config())
 file_store = ContentAddressedStore(config.storage)
+
+# Initialize LangFuse tracer
+tracer = LangfuseTracer(config.langfuse)
+set_tracer(tracer)
+
 app = FastAPI(title="Agent SDK API Service", version="0.1.0")
 TEST_PAGE_PATH = Path(__file__).resolve().parent / "static" / "test" / "index.html"
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Cleanup on shutdown."""
+    tracer.shutdown()
 
 
 @app.get("/", response_model=HealthResponse)
