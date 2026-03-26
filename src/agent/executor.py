@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import AsyncIterable, AsyncIterator
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -16,8 +17,23 @@ from claude_agent_sdk import (
 from src.agent.options import build_agent_options
 from src.api.models import ExecutionResult
 from src.config import AppConfig
+from src.tracing.langfuse_tracer import LangfuseTracer
 
 logger = logging.getLogger(__name__)
+
+# Global tracer instance (will be initialized by routes)
+_tracer: LangfuseTracer | None = None
+
+
+def set_tracer(tracer: LangfuseTracer) -> None:
+    """Set global tracer instance."""
+    global _tracer
+    _tracer = tracer
+
+
+def get_tracer() -> LangfuseTracer | None:
+    """Get global tracer instance."""
+    return _tracer
 
 _CLI_EXIT_CODE_MARKER = "Command failed with exit code"
 
