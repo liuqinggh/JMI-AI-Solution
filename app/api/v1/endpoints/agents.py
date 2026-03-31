@@ -143,18 +143,20 @@ async def create_agent_message(
     batch_service: UploadBatchService = Depends(get_batch_service),
     workspace_service: SessionWorkspaceService = Depends(get_workspace_service),
 ) -> AgentResponse | StructuredAgentResponse:
-    """Execute agent with the given prompt and files.
+    """Execute agent with the given prompt and optional file batch.
 
     Args:
         config: Application configuration (injected)
-        file_store: File storage (injected)
         tracer: Langfuse tracer (injected)
         prompt: User prompt/query
         session_id: Optional session ID for conversation continuation
+        upload_batch_id: Optional upload batch ID to bind to this message
+        file_ids: Optional comma-separated file IDs (if only binding subset)
         structured_output_profile: Optional profile for structured output validation
         final_answer_text_policy: How to assemble final answer text (full or last_assistant_turn)
         user_id: Optional user ID for tracing
-        files: Optional uploaded files
+        batch_service: Batch service (injected)
+        workspace_service: Workspace service (injected)
 
     Returns:
         Agent response (standard or structured)
