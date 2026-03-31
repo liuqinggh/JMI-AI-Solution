@@ -133,12 +133,21 @@ export LANGFUSE_SECRET_KEY=lf_sk_...
 
 ## 文档索引
 
+### 核心文档
 - **快速开始**: `docs/QUICK_START.md`
 - **文件上传设计**: `docs/FILE_UPLOAD_DESIGN.md`
 - **文件上传实现**: `docs/FILE_UPLOAD_IMPLEMENTATION.md`
-- **迁移指南**: `docs/FILE_UPLOAD_MIGRATION.md` ⭐️
+- **文件上传迁移指南**: `docs/FILE_UPLOAD_MIGRATION.md` ⭐️ 重要
 - **Vertex AI 配置**: `docs/VERTEX_AI_SETUP.md`
 - **Langfuse 集成**: `docs/langfuse-integration.md`
+- **Langfuse 快速开始**: `docs/langfuse-quickstart.md`
+- **存储优化**: `docs/storage-optimization.md`
+
+### 技术方案文档（中文）
+- **Claude Agent SDK + SKILLs 场景下的文件处理**: `docs/Claude-Agent-SDK+SKILLs场景下的文件处理方案.md`
+- **Claude Agent SDK 输出固定 JSON 的方案**: `docs/claude-agent-SDK输出固定的json的方案.md`
+- **SDK Structured Outputs 实现总结**: `docs/实现总结-SDK-Structured-Outputs.md`
+- **需求文档**: `docs/需求.md`
 
 ## 开发规范
 
