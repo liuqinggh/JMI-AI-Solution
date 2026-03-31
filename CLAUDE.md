@@ -120,15 +120,78 @@ python -m app.main
 ### 环境配置
 
 ```bash
-# 复制配置示例
+# 1. 复制配置示例（如果需要）
 cp conf/config.example.yaml conf/config.yaml
 
-# 编辑配置文件，设置 Claude API 或 Vertex AI
+# 2. 编辑配置文件
 vim conf/config.yaml
+
+# 3. 设置环境变量（可选，用于覆盖配置文件）
+# Vertex AI 配置
+export GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
+export ANTHROPIC_VERTEX_PROJECT_ID=your-project-id
+export CLOUD_ML_REGION=global
+
+# 或使用 Anthropic API
+export ANTHROPIC_API_KEY=sk-ant-...
 
 # Langfuse 追踪（可选）
 export LANGFUSE_PUBLIC_KEY=lf_pk_...
 export LANGFUSE_SECRET_KEY=lf_sk_...
+```
+
+### 配置文件结构（conf/config.yaml）
+
+```yaml
+app:                          # 应用基础配置
+  name: Claude Agent Platform
+  version: 0.1.0
+  environment: dev
+  host: 0.0.0.0
+  port: 8000
+
+claude:                       # Claude Agent SDK 配置
+  model: claude-sonnet-4-5    # 模型名称
+  base_url: http://localhost:4000  # API 端点（可选）
+  api_key: sk-1234            # API Key（建议通过环境变量设置）
+  permission_mode: default    # 权限模式：default / strict / permissive
+  default_allowed_tools:      # 默认允许的工具列表
+    - Read
+    - Write
+    - Edit
+    - MultiEdit
+    - Glob
+    - Grep
+    - LS
+  mcp_enabled: false          # 是否启用 MCP
+  env:                        # SDK 环境变量
+    CLAUDE_CODE_USE_VERTEX: "1"
+    CLOUD_ML_REGION: global
+
+session:                      # 会话管理配置
+  storage_dir: runtime/sessions
+  mapping_ttl_seconds: 604800 # 7天
+
+upload:                       # 文件上传配置
+  temp_dir: uploads/temp
+  max_file_size_mb: 20
+  allowed_extensions:
+    - .txt
+    - .md
+    - .json
+    - .csv
+    - .pdf
+
+security:                     # 安全配置
+  can_use_tool_hook: true
+  require_approval_for_write: true
+
+apps:                         # 应用注册（技能与权限绑定）
+  default:
+    skill_name: fastapi-dev
+    cwd: .
+    permission_mode: default
+    allowed_tools: []
 ```
 
 ## 文档索引
