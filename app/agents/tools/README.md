@@ -1,14 +1,16 @@
-# Agent Tools
+# Agent Tools - 外部系统集成
 
-此目录包含自定义的 MCP (Model Context Protocol) 工具，供 Claude Agent SDK 使用。
+此目录包含 MCP (Model Context Protocol) 工具，用于 Claude Agent SDK 与外部系统交互。
 
-## 工具优先级
+## ⚠️ 工具使用优先级
 
 根据 `.claude/rules/claude_agent_sdk.md` 规则：
 
-1. **MCP Servers（首选）** - 注册 Python 函数作为工具，支持复杂逻辑
-2. **内置工具** - Read/Write/Edit/Bash 等，通过 `allowed_tools` 严格限制
-3. **自定义工具** - 必须提供清晰描述、输入示例和输出格式
+1. **SDK 内置工具（首选）** - Read/Write/Edit/Bash 等，用于文件操作、代码编辑等本地任务
+2. **MCP Servers（外部集成）** - 仅用于与外部系统交互（数据库、API、第三方服务）
+3. **自定义工具（谨慎使用）** - 必须提供清晰描述，优先考虑是否可用内置工具实现
+
+**重要原则**：避免过度复杂化，优先使用内置工具，仅在需要外部集成时才添加 MCP 工具。
 
 ## 创建新工具
 
