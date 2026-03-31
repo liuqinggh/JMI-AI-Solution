@@ -1,5 +1,6 @@
 """API package with versioned routers."""
 
-from app.api.v1 import api_router
+# Avoid circular imports by not importing at module level
+# Import api_router when needed in app.api.app
 
-__all__ = ["api_router"]
+__all__ = []
