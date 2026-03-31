@@ -82,7 +82,11 @@ python -m app.main
 
 - `GET /api/v1/health` - 健康检查
 - `GET /api/v1/config` - 配置信息
-- `POST /api/v1/agent/messages` - 执行 Agent 任务
+- `POST /api/v1/files/batches` - 创建文件上传批次（新）
+- `GET /api/v1/files/batches/{batch_id}` - 查询批次状态（新）
+- `GET /api/v1/files/sessions/{session_id}` - 列出会话文件（新）
+- `GET /api/v1/files/sessions/{session_id}/{file_id}` - 下载文件（新）
+- `POST /api/v1/agent/messages` - 执行 Agent 任务（已更新）
 - `GET /api/v1/test` - 测试页面
 
 ### 环境配置
