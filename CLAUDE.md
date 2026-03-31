@@ -67,10 +67,10 @@ JMI-AI-Solution/
 
 ```bash
 # 开发模式（自动重载）
-python -m uvicorn app.main:app --reload
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
-# 或使用根目录入口（向后兼容）
-python main.py
+# 或直接运行
+python -m app.main
 ```
 
 ### API 端点
