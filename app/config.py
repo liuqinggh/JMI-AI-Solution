@@ -135,7 +135,7 @@ class AppConfig(BaseModel):
     app: AppSettings = Field(default_factory=AppSettings)
     sdk: SdkSettings = Field(default_factory=SdkSettings)
     agent: AgentSettings = Field(default_factory=AgentSettings)
-    storage: StorageSettings = Field(default_factory=StorageSettings)
+    workspace: WorkspaceSettings = Field(default_factory=WorkspaceSettings)
     api: ApiSettings = Field(default_factory=ApiSettings)
     langfuse: LangfuseSettings = Field(default_factory=LangfuseSettings)
 
