@@ -74,7 +74,7 @@ def test_messages_endpoint_basic(tmp_path):
     """Test basic message endpoint with prompt only."""
     client = create_test_app(tmp_path)
 
-    with patch("app.agents.executor.execute_agent_message", new_callable=AsyncMock) as mock_exec:
+    with patch("app.api.v1.endpoints.agents.execute_agent_message", new_callable=AsyncMock) as mock_exec:
         mock_exec.return_value = ExecutionResult(
             session_id="test-session-1",
             final_answer="test response",
