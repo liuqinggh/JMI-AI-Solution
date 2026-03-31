@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from app.core.session_id import validate_business_session_id
 from app.models.session import SessionMapping, utc_now
 
 
@@ -11,7 +12,8 @@ class SessionManager:
         self.storage_dir.mkdir(parents=True, exist_ok=True)
 
     def _path_for(self, business_session_id: str) -> Path:
-        return self.storage_dir / f"{business_session_id}.json"
+        safe_session_id = validate_business_session_id(business_session_id)
+        return self.storage_dir / f"{safe_session_id}.json"
 
     def save_mapping(
         self,

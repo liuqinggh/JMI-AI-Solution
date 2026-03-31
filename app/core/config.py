@@ -28,8 +28,17 @@ class AppSettings(BaseModel):
     port: int = 8000
 
 
+def _default_claude_env() -> dict[str, str]:
+    return {
+        "CLAUDE_CODE_USE_VERTEX": "1",
+        "CLOUD_ML_REGION": "global",
+    }
+
+
 class ClaudeSettings(BaseModel):
     model: str = "claude-sonnet-4-5"
+    base_url: str | None = "http://localhost:4000"
+    api_key: str | None = "sk-1234"
     permission_mode: str = "default"
     max_turns: int = 12
     setting_sources: list[str] = Field(default_factory=lambda: ["project", "user"])
@@ -39,7 +48,7 @@ class ClaudeSettings(BaseModel):
     )
     mcp_enabled: bool = False
     mcp_servers: list[dict[str, Any]] = Field(default_factory=list)
-    env: dict[str, str] = Field(default_factory=dict)
+    env: dict[str, str] = Field(default_factory=_default_claude_env)
 
 
 class SessionSettings(BaseModel):

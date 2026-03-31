@@ -35,11 +35,20 @@ apps:
     allowed_tools:
       - Read
       - Write
+  alternate:
+    skill_name: other
+    cwd: .
+    permission_mode: default
+    allowed_tools:
+      - Read
 """.strip(),
     )
     skill_file = tmp_path / ".claude" / "skills" / "demo" / "SKILL.md"
     skill_file.parent.mkdir(parents=True, exist_ok=True)
     skill_file.write_text("# Demo Skill", encoding="utf-8")
+    other_skill_file = tmp_path / ".claude" / "skills" / "other" / "SKILL.md"
+    other_skill_file.parent.mkdir(parents=True, exist_ok=True)
+    other_skill_file.write_text("# Other Skill", encoding="utf-8")
     monkeypatch.chdir(tmp_path)
     reset_settings_cache()
     return TestClient(create_app())
@@ -135,3 +144,43 @@ def test_chat_copies_uploaded_files_into_workspace(tmp_path, monkeypatch):
     assert "note.txt" in str(captured["message"])
     workspace_upload = tmp_path / ".agent-platform" / "biz-file" / "uploads" / "note.txt"
     assert workspace_upload.exists()
+
+
+def test_chat_rejects_invalid_business_session_id(tmp_path, monkeypatch):
+    client = create_client(tmp_path, monkeypatch)
+
+    response = client.post(
+        "/api/v1/chat",
+        json={
+            "message": "hello",
+            "business_session_id": "../escape",
+            "app_id": "default",
+            "file_ids": [],
+        },
+    )
+
+    assert response.status_code == 422
+    assert "business_session_id" in response.text
+
+
+def test_chat_rejects_resuming_session_with_different_app(tmp_path, monkeypatch):
+    client = create_client(tmp_path, monkeypatch)
+    SessionManager(tmp_path / "runtime" / "sessions").save_mapping(
+        business_session_id="biz-conflict",
+        sdk_session_id="sdk-existing",
+        app_id="default",
+        skill_name="demo",
+    )
+
+    response = client.post(
+        "/api/v1/chat",
+        json={
+            "message": "switch app",
+            "business_session_id": "biz-conflict",
+            "app_id": "alternate",
+            "file_ids": [],
+        },
+    )
+
+    assert response.status_code == 409
+    assert "business_session_id" in response.json()["detail"]

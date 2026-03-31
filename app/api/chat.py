@@ -13,6 +13,7 @@ from app.core.permissions import resolve_permissions
 from app.core.session_manager import SessionManager
 from app.models.app import RegisteredApp
 from app.models.chat import ChatRequest
+from app.models.session import SessionMapping
 from app.services.app_registry import AppRegistry
 from app.services.skill_loader import SkillLoader
 from app.services.upload_service import UploadService
@@ -49,6 +50,30 @@ def _format_sse(event: str, payload: dict[str, object]) -> str:
     return f"event: {event}\ndata: {json.dumps(payload, ensure_ascii=False)}\n\n"
 
 
+def _ensure_mapping_matches_request(
+    existing_mapping: SessionMapping | None,
+    *,
+    business_session_id: str,
+    registered_app: RegisteredApp,
+    request_app_id: str | None,
+) -> None:
+    if existing_mapping is None:
+        return
+
+    expected_app_id = request_app_id or registered_app.app_id
+    app_mismatch = existing_mapping.app_id not in (None, expected_app_id)
+    skill_mismatch = existing_mapping.skill_name != registered_app.skill_name
+
+    if app_mismatch or skill_mismatch:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "business_session_id is already bound to a different app or skill; "
+                f"stored app_id={existing_mapping.app_id!r}, stored skill_name={existing_mapping.skill_name!r}"
+            ),
+        )
+
+
 @router.post("/chat")
 async def chat(
     request: ChatRequest,
@@ -68,6 +93,12 @@ async def chat(
 
     session_manager = _session_manager(settings)
     existing_mapping = session_manager.get_mapping(request.business_session_id)
+    _ensure_mapping_matches_request(
+        existing_mapping,
+        business_session_id=request.business_session_id,
+        registered_app=registered_app,
+        request_app_id=request.app_id,
+    )
     resume_session_id = existing_mapping.sdk_session_id if existing_mapping else None
 
     upload_service = _upload_service(settings)

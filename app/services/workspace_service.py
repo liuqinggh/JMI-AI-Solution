@@ -3,6 +3,7 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
+from app.core.session_id import validate_business_session_id
 from app.models.upload import StoredUpload
 from app.services.upload_service import sanitize_filename
 
@@ -19,7 +20,8 @@ class WorkspaceService:
         uploads: list[StoredUpload],
     ) -> tuple[Path, list[str]]:
         cwd = (self.root / app_cwd).resolve()
-        upload_dir = cwd / ".agent-platform" / business_session_id / "uploads"
+        safe_session_id = validate_business_session_id(business_session_id)
+        upload_dir = cwd / ".agent-platform" / safe_session_id / "uploads"
         upload_dir.mkdir(parents=True, exist_ok=True)
 
         relative_paths: list[str] = []

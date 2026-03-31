@@ -25,6 +25,22 @@ def test_session_manager_persists_mapping(tmp_path):
     assert record.skill_name == "fastapi-dev"
 
 
+def test_session_manager_rejects_path_traversal_session_id(tmp_path):
+    manager = SessionManager(tmp_path / "runtime" / "sessions")
+
+    try:
+        manager.save_mapping(
+            business_session_id="../escape",
+            sdk_session_id="sdk-1",
+            app_id="default",
+            skill_name="fastapi-dev",
+        )
+    except ValueError as exc:
+        assert "business_session_id" in str(exc)
+    else:
+        raise AssertionError("expected ValueError for invalid business_session_id")
+
+
 def test_app_registry_returns_configured_app():
     settings = Settings(
         apps={
