@@ -181,11 +181,15 @@ async def create_agent_message(
     )
     output_fmt = get_output_format(sop)  # 动态获取 Schema
 
+    # 解析 file_ids（如果提供）
+    selected_file_ids = None
+    if file_ids:
+        selected_file_ids = [fid.strip() for fid in file_ids.split(",") if fid.strip()]
+
     # Start LangFuse trace
     trace_metadata = {
         "prompt_length": len(prompt),
-        "has_files": len(files) > 0,
-        "file_count": len(files),
+        "has_batch": upload_batch_id is not None,
         "structured_output_profile": sop,
         "final_answer_policy": text_policy,
     }
@@ -196,15 +200,23 @@ async def create_agent_message(
         metadata=trace_metadata,
     ) as trace_id:
         try:
+            # 续接会话
             if session_id:
-                working_dir = file_store.ensure_session_dir(session_id)
-                saved_files = await file_store.save_uploads(files, working_dir)
-                prepared_prompt = file_store.build_prompt(
-                    prompt=prompt,
-                    saved_files=saved_files,
-                    template=config.api.file_prompt_template,
-                    target_dir=working_dir,
-                )
+                working_dir = workspace_service.get_session_workspace(session_id)
+
+                # 如果有新批次，追加到会话
+                if upload_batch_id:
+                    workspace_service.import_batch_to_workspace(
+                        working_dir,
+                        upload_batch_id,
+                        selected_file_ids,
+                    )
+                    batch_service.consume_batch(upload_batch_id, session_id)
+
+                # 构建文件上下文
+                files_context = workspace_service.build_files_context(session_id)
+                prepared_prompt = f"{files_context}\n\n{prompt}" if files_context else prompt
+
                 result = await execute_agent_message(
                     config=config,
                     prompt=prepared_prompt,
@@ -225,14 +237,51 @@ async def create_agent_message(
                     )
                 return response
 
-            working_dir = file_store.create_pending_dir()
-            saved_files = await file_store.save_uploads(files, working_dir)
-            prepared_prompt = file_store.build_prompt(
-                prompt=prompt,
-                saved_files=saved_files,
-                template=config.api.file_prompt_template,
-                target_dir=working_dir,
-            )
+            # 新会话
+            import uuid
+
+            request_id = f"req_{uuid.uuid4().hex}"
+            working_dir = workspace_service.create_pending_workspace(request_id)
+
+            # 如果有批次，导入到 pending workspace
+            if upload_batch_id:
+                workspace_service.import_batch_to_workspace(
+                    working_dir,
+                    upload_batch_id,
+                    selected_file_ids,
+                )
+
+            # 构建文件上下文（使用临时 request_id）
+            manifest_path = working_dir / "manifest.json"
+            files_context = ""
+            if manifest_path.exists():
+                from app.schemas.file import SessionManifest
+
+                manifest = SessionManifest.model_validate_json(
+                    manifest_path.read_text(encoding="utf-8")
+                )
+                if manifest.files:
+                    file_lines = []
+                    for file_meta in manifest.files:
+                        size_mb = file_meta.size / (1024 * 1024)
+                        file_lines.append(
+                            f"- {file_meta.safe_filename} ({size_mb:.2f} MB, {file_meta.content_type})\n"
+                            f"  Path: {file_meta.relative_path}"
+                        )
+                    files_list = "\n".join(file_lines)
+                    files_context = f"""
+<uploaded_files>
+The following files have been uploaded and are available in this session:
+
+{files_list}
+
+You can read these files using the built-in Read tool with the paths shown above.
+Example: Read("{manifest.files[0].relative_path}")
+</uploaded_files>
+"""
+
+            prepared_prompt = f"{files_context}\n\n{prompt}" if files_context else prompt
+
             result = await execute_agent_message(
                 config=config,
                 prompt=prepared_prompt,
@@ -241,7 +290,14 @@ async def create_agent_message(
                 final_answer_text_policy=text_policy,
                 user_id=user_id,
             )
-            file_store.finalize_pending_dir(working_dir, result.session_id)
+
+            # 将 pending workspace 迁移到 session workspace
+            workspace_service.finalize_pending_workspace(working_dir, result.session_id)
+
+            # 消费批次
+            if upload_batch_id:
+                batch_service.consume_batch(upload_batch_id, result.session_id)
+
             response = _build_response(result, sop)
 
             # Update trace with final result
