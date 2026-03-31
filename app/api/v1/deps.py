@@ -7,30 +7,35 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.config import AppConfig, get_config
-from app.storage.content_store import ContentAddressedStore
+from app.services.session_workspace_service import SessionWorkspaceService
+from app.services.upload_batch_service import UploadBatchService
 from app.tracing.langfuse_tracer import LangfuseTracer
 
 # Shared instances (initialized at app startup)
 _config: AppConfig | None = None
-_file_store: ContentAddressedStore | None = None
+_batch_service: UploadBatchService | None = None
+_workspace_service: SessionWorkspaceService | None = None
 _tracer: LangfuseTracer | None = None
 
 
 def init_dependencies(
     config: AppConfig,
-    file_store: ContentAddressedStore,
+    batch_service: UploadBatchService,
+    workspace_service: SessionWorkspaceService,
     tracer: LangfuseTracer,
 ) -> None:
     """Initialize shared dependencies at app startup.
 
     Args:
         config: Application configuration
-        file_store: Content-addressed file storage
+        batch_service: Upload batch service
+        workspace_service: Session workspace service
         tracer: Langfuse tracer instance
     """
-    global _config, _file_store, _tracer
+    global _config, _batch_service, _workspace_service, _tracer
     _config = config
-    _file_store = file_store
+    _batch_service = batch_service
+    _workspace_service = workspace_service
     _tracer = tracer
 
 
@@ -48,18 +53,32 @@ def get_app_config() -> AppConfig:
     return _config
 
 
-def get_file_store() -> ContentAddressedStore:
-    """Get file storage instance.
+def get_batch_service() -> UploadBatchService:
+    """Get upload batch service.
 
     Returns:
-        Content-addressed file storage
+        Upload batch service
 
     Raises:
         RuntimeError: If dependencies not initialized
     """
-    if _file_store is None:
+    if _batch_service is None:
         raise RuntimeError("Dependencies not initialized. Call init_dependencies() first.")
-    return _file_store
+    return _batch_service
+
+
+def get_workspace_service() -> SessionWorkspaceService:
+    """Get session workspace service.
+
+    Returns:
+        Session workspace service
+
+    Raises:
+        RuntimeError: If dependencies not initialized
+    """
+    if _workspace_service is None:
+        raise RuntimeError("Dependencies not initialized. Call init_dependencies() first.")
+    return _workspace_service
 
 
 def get_langfuse_tracer() -> LangfuseTracer:
@@ -78,5 +97,6 @@ def get_langfuse_tracer() -> LangfuseTracer:
 
 # Type aliases for dependency injection
 ConfigDep = Annotated[AppConfig, Depends(get_app_config)]
-FileStoreDep = Annotated[ContentAddressedStore, Depends(get_file_store)]
+BatchServiceDep = Annotated[UploadBatchService, Depends(get_batch_service)]
+WorkspaceServiceDep = Annotated[SessionWorkspaceService, Depends(get_workspace_service)]
 TracerDep = Annotated[LangfuseTracer, Depends(get_langfuse_tracer)]
