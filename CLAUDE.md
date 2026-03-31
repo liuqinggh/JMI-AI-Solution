@@ -25,15 +25,17 @@ JMI-AI-Solution/
 │   │       ├── deps.py           # 依赖注入
 │   │       └── endpoints/        # 路由端点
 │   │           ├── agents.py     # Agent 执行端点
+│   │           ├── files.py      # 文件上传端点（新）
 │   │           ├── health.py     # 健康检查
 │   │           └── test.py       # 测试页面
 │   ├── schemas/                  # Pydantic 数据模型
 │   │   ├── agent.py              # Agent 响应模型
+│   │   ├── file.py               # 文件上传模型（新）
 │   │   ├── structured.py         # 结构化输出模型
 │   │   └── health.py             # 健康检查模型
-│   ├── storage/                  # 文件存储管理
-│   │   ├── content_store.py      # 内容寻址存储
-│   │   └── file_store.py         # 文件存储接口
+│   ├── services/                 # 业务服务层（新）
+│   │   ├── upload_batch_service.py      # 批次上传服务
+│   │   └── session_workspace_service.py # 会话工作区服务
 │   └── tracing/                  # 追踪与监控
 │       └── langfuse_tracer.py    # Langfuse 集成
 ├── conf/                         # 配置文件
