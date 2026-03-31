@@ -40,8 +40,10 @@ class TestUploadEndpoint:
 
         assert "files" in data
         assert len(data["files"]) == 1
-        assert data["files"][0]["filename"] == "test.txt"
+        assert data["files"][0]["original_name"] == "test.txt"
         assert "file_id" in data["files"][0]
+        assert "saved_path" in data["files"][0]
+        assert data["files"][0]["size"] > 0
 
     def test_upload_multiple_files(self):
         """测试上传多个文件"""
