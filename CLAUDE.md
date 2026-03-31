@@ -107,7 +107,9 @@ export LANGFUSE_SECRET_KEY=lf_sk_...
 
 - **快速开始**: `docs/QUICK_START.md`
 - **API 参考**: `docs/API_REFERENCE.md`
-- **文件上传设计**: `docs/FILE_UPLOAD_DESIGN.md`
+- **文件上传迁移指南**: `docs/FILE_UPLOAD_MIGRATION.md` ⭐️ 重要
+- **API 使用示例**: `docs/API_EXAMPLES.md`
+- **文件上传实现方案**: `docs/FILE_UPLOAD_IMPLEMENTATION.md`
 - **Vertex AI 配置**: `docs/VERTEX_AI_SETUP.md`
 - **Langfuse 集成**: `LANGFUSE_INTEGRATION.md`
 - **工具开发指南**: `app/agents/tools/README.md`
