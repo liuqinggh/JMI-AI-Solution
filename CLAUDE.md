@@ -44,7 +44,10 @@ JMI-AI-Solution/
 ├── docs/                         # 项目文档
 │   ├── QUICK_START.md            # 快速开始
 │   ├── API_REFERENCE.md          # API 参考
-│   ├── FILE_UPLOAD_DESIGN.md     # 文件上传设计
+│   ├── FILE_UPLOAD_DESIGN.md     # 文件上传设计（旧）
+│   ├── FILE_UPLOAD_IMPLEMENTATION.md  # 文件上传实现方案（v2.0）
+│   ├── FILE_UPLOAD_MIGRATION.md  # 迁移指南（新）
+│   ├── API_EXAMPLES.md           # API 使用示例（新）
 │   └── VERTEX_AI_SETUP.md        # Vertex AI 配置
 ├── tests/                        # 测试文件
 ├── .claude/rules/                # Claude Code 规则
