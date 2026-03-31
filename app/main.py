@@ -1,24 +1,19 @@
-"""FastAPI application entry point."""
-
 from __future__ import annotations
 
-import uvicorn
+from fastapi import FastAPI
 
-from app.api.app import create_app
-from app.config import configure_sdk_environment, get_config
-from app.core.logging import setup_logging
+from app.api import api_router
+from app.core.config import Settings, get_settings
 
-# Initialize logging
-setup_logging(level="INFO", use_colors=True)
 
-# Load configuration and create app
-config = configure_sdk_environment(get_config())
-app = create_app(config)
-
-if __name__ == "__main__":
-    uvicorn.run(
-        "app.main:app",
-        host=config.app.host,
-        port=config.app.port,
-        reload=config.app.reload,
+def create_app(settings: Settings | None = None) -> FastAPI:
+    resolved_settings = settings or get_settings()
+    app = FastAPI(
+        title=resolved_settings.app.name,
+        version=resolved_settings.app.version,
     )
+    app.include_router(api_router)
+    return app
+
+
+app = create_app()

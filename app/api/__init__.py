@@ -1,6 +1,12 @@
-"""API package with versioned routers."""
+"""API router assembly."""
 
-# Avoid circular imports by not importing at module level
-# Import api_router when needed in app.api.app
+from fastapi import APIRouter
 
-__all__ = []
+from app.api.chat import router as chat_router
+from app.api.health import router as health_router
+from app.api.upload import router as upload_router
+
+api_router = APIRouter(prefix="/api/v1")
+api_router.include_router(chat_router)
+api_router.include_router(health_router)
+api_router.include_router(upload_router)
