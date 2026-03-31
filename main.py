@@ -1,15 +1,19 @@
-import uvicorn
+"""Backward compatibility entry point.
 
-from src.config import configure_sdk_environment, get_config
-from src.api.routes import app
+For new code, use: python -m uvicorn app.main:app
+"""
 
+from app.main import app
 
-config = configure_sdk_environment(get_config())
-
+__all__ = ["app"]
 
 if __name__ == "__main__":
+    import uvicorn
+    from app.config import get_config
+
+    config = get_config()
     uvicorn.run(
-        "main:app",
+        "app.main:app",
         host=config.app.host,
         port=config.app.port,
         reload=config.app.reload,
