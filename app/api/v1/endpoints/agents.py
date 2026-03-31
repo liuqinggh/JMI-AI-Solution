@@ -132,14 +132,16 @@ def _build_response(
 )
 async def create_agent_message(
     config: ConfigDep,
-    file_store: FileStoreDep,
     tracer: TracerDep,
     prompt: str = Form(...),
     session_id: str | None = Form(None),
+    upload_batch_id: str | None = Form(None),
+    file_ids: str | None = Form(None),
     structured_output_profile: str | None = Form(None),
     final_answer_text_policy: str | None = Form(None),
     user_id: str | None = Form(None),
-    files: list[UploadFile] = File(default=[]),
+    batch_service: UploadBatchService = Depends(get_batch_service),
+    workspace_service: SessionWorkspaceService = Depends(get_workspace_service),
 ) -> AgentResponse | StructuredAgentResponse:
     """Execute agent with the given prompt and files.
 
