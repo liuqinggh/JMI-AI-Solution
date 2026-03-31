@@ -2,15 +2,18 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from src.api import routes
-from src.api.models import ExecutionResult
-from src.config import StorageSettings
-from src.storage.content_store import ContentAddressedStore
+from app.api.app import create_app
+from app.api.v1.deps import init_dependencies
+from app.config import AppConfig, StorageSettings
+from app.schemas import ExecutionResult
+from app.storage.content_store import ContentAddressedStore
+from app.tracing.langfuse_tracer import LangfuseTracer
 
 
 def test_test_page_is_available():
-    client = TestClient(routes.app)
-    response = client.get("/test")
+    app = create_app()
+    client = TestClient(app)
+    response = client.get("/api/v1/test")
 
     assert response.status_code == 200
     assert "text/html" in response.headers["content-type"]
