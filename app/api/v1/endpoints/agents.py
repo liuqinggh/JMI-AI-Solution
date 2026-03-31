@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, Form, HTTPException
 
 from app.agents.executor import execute_agent_message
 from app.agents.schema_registry import get_output_format
@@ -15,8 +15,15 @@ from app.api.jmi_intake_checkout_output import (
     parse_jmi_intake_checkout_final_answer,
     strip_markdown_json_fence,
 )
-from app.api.v1.deps import ConfigDep, FileStoreDep, TracerDep
+from app.api.v1.deps import (
+    ConfigDep,
+    TracerDep,
+    get_batch_service,
+    get_workspace_service,
+)
 from app.schemas import AgentResponse, ExecutionResult, StructuredAgentResponse
+from app.services.session_workspace_service import SessionWorkspaceService
+from app.services.upload_batch_service import UploadBatchService
 
 router = APIRouter()
 
